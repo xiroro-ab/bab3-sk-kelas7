@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Interaktif - Sistem Komputer</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* CSS Reset and Basic Setup */
+        :root {
+            --primary-color: #8e2de2;
+            --secondary-color: #4a00e0;
+            --accent-red: #ff416c;
+            --accent-blue: #4facfe;
+            --bg-dark: #1a1a2e;
+            --bg-light: #2c2c54;
+            --text-light: #f0f0f0;
+            --text-dark: #a0a0c0;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glow-color-1: rgba(142, 45, 226, 0.7);
+            --glow-color-2: rgba(79, 172, 254, 0.7);
+            --correct-glow: rgba(76, 175, 80, 0.8);
+            --incorrect-glow: rgba(244, 67, 54, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark), #16222A);
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: background-color 0.3s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Glow Effect */
+        .glow-effect {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 5px var(--glow-color-1), 0 0 10px var(--glow-color-1);
+        }
+        .glow-effect:hover, .glow-effect-active {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 0 15px var(--glow-color-2), 0 0 30px var(--glow-color-2);
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        
+        .header.scrolled {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--glow-color-1);
+        }
+
+        .menu-toggle {
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 1002;
+            transition: transform 0.3s;
+            text-shadow: 0 0 10px var(--glow-color-2);
+        }
+        .menu-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            padding: 2rem 1rem;
+            z-index: 1001;
+            transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+        }
+        .sidebar nav ul li a, .sidebar nav ul li .submenu-toggle {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center; /* Vertically center items */
+            cursor: pointer;
+            justify-content: flex-start; /* Align all items to the left */
+        }
+        
+        .sidebar nav ul li .submenu-toggle .fa-chevron-down {
+            margin-left: auto; /* Push chevron to the far right */
+             transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar nav ul li a i, .sidebar nav ul li .submenu-toggle i:first-of-type {
+            margin-right: 15px; /* Add space between icon and text */
+            width: 20px; /* Ensure icons have same width for alignment */
+            text-align: center;
+        }
+        
+        .sidebar nav ul li .submenu-toggle .fa-rotate-180 {
+            transform: rotate(180deg);
+        }
+
+
+        .sidebar nav ul li a:hover, .sidebar nav ul li .submenu-toggle:hover, .sidebar nav ul li a.active {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateX(10px);
+            box-shadow: 0 0 15px var(--glow-color-1);
+        }
+
+        .submenu {
+            list-style: none;
+            padding-left: 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .submenu-open {
+            max-height: 500px; /* Adjust as needed */
+        }
+        .submenu a {
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem !important;
+            margin: 0.2rem 0 !important;
+        }
+        .submenu a:hover {
+             background: linear-gradient(90deg, var(--accent-red), var(--primary-color)) !important;
+        }
+
+        .copyright {
+            margin-top: auto;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 0.8rem;
+            color: var(--text-dark);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 2rem 5%;
+            transition: margin-left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Home Page */
+        .home-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--accent-blue);
+            box-shadow: 0 0 25px var(--accent-blue), 0 0 50px var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .home-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .home-header p {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .menu-card {
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+        }
+        .menu-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: -webkit-linear-gradient(45deg, var(--primary-color), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .menu-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .menu-card p {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        /* Materi Page */
+        .materi-container, .game-container {
+            padding: 2rem;
+        }
+        
+        .materi-title, .game-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-top: 1.5rem;
+            box-shadow: 0 0 20px var(--glow-color-1);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .materi-slide {
+            margin-bottom: 2rem;
+        }
+        
+        .materi-slide p {
+            line-height: 1.8;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+        
+        .materi-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .materi-navigation button {
+            padding: 0.8rem 1.5rem;
+        }
+
+        /* Kuis Page */
+        .kuis-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem;
+        }
+
+        #registrasi-kuis, #kuis-main, #hasil-kuis {
+             animation: fadeIn 0.5s;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: var(--glass-bg);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--glow-color-2);
+        }
+        
+        .form-group select option {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        #kuis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        #timer { font-weight: 700; font-size: 1.2rem; }
+        #progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--bg-light);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        #progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-red));
+            transition: width 0.3s;
+        }
+        
+        #soal-container {
+            margin: 2rem 0;
+        }
+        .question-image {
+            display: block;
+            margin: 0 auto 1.5rem auto; /* Tengahkan gambar dan beri jarak bawah */
+            width: 100%;
+            max-width: 600px; /* Lebar maksimum gambar */
+            height: 300px; /* Tinggi yang sama untuk semua gambar */
+            object-fit: contain; /* Pastikan seluruh gambar terlihat tanpa distorsi */
+            border-radius: 15px;
+        }
+        #pilihan-jawaban {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .pilihan {
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pilihan:hover {
+            background-color: var(--glass-bg);
+        }
+        .pilihan.selected {
+            background: linear-gradient(90deg, var(--accent-blue), var(--primary-color));
+            border-color: var(--accent-blue);
+        }
+        #kuis-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        #hasil-kuis {
+            text-align: center;
+        }
+        
+        /* Papan Peringkat */
+        .leaderboard-container {
+            padding: 2rem;
+        }
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        .podium-item {
+            text-align: center;
+            width: 30%;
+        }
+        .podium-item .rank {
+            font-size: 3rem;
+            font-weight: 800;
+            color: gold;
+        }
+        .podium-item.rank-2 .rank { color: silver; }
+        .podium-item.rank-3 .rank { color: #cd7f32; }
+        .podium-item .name { font-weight: 600; font-size: 1.1rem; }
+        .podium-item .score { font-size: 1.5rem; font-weight: 700; }
+        .podium-item .bar {
+            height: 150px;
+            background: linear-gradient(to top, gold, yellow);
+            border-radius: 10px 10px 0 0;
+            margin-top: 0.5rem;
+        }
+        .podium-item.rank-2 .bar { height: 120px; background: linear-gradient(to top, silver, #e0e0e0); }
+        .podium-item.rank-3 .bar { height: 90px; background: linear-gradient(to top, #cd7f32, #e69138); }
+        
+        .leaderboard-table-container {
+            overflow-x: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+        .leaderboard-table thead {
+            background: var(--glass-bg);
+        }
+        .leaderboard-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s;
+        }
+        .leaderboard-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        .leaderboard-table tbody tr:hover {
+            background-color: var(--glass-bg);
+        }
+        .leaderboard-table td:first-child { font-weight: 700; }
+        
+        /* Puzzle Game */
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(5, 100px);
+            grid-template-rows: repeat(5, 100px);
+            gap: 5px;
+            border: 5px solid var(--primary-color);
+            width: 525px;
+            margin: 1rem auto;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background-image: url('https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80');
+            background-size: 500px 500px;
+            border: 1px solid #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .puzzle-piece:hover {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        /* NEW GAME: Sortir Komponen */
+        #sort-game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        #component-to-sort-area {
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #component-image {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            background-color: var(--glass-bg);
+            border-radius: 20px;
+            padding: 10px;
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+        #component-image.dragging {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+        #component-name {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        #drop-zones {
+            display: flex;
+            gap: 1.5rem;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .drop-zone {
+            width: 250px;
+            height: 150px;
+            border: 2px dashed var(--text-dark);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .drop-zone h4 {
+            font-size: 1.2rem;
+        }
+        .drop-zone.over {
+            background-color: var(--glass-bg);
+            border-color: var(--accent-blue);
+            transform: scale(1.05);
+        }
+        .drop-zone.correct {
+            border-color: var(--correct-glow);
+            box-shadow: 0 0 15px var(--correct-glow);
+            animation: pulse-correct 0.5s;
+        }
+        .drop-zone.incorrect {
+            border-color: var(--incorrect-glow);
+            box-shadow: 0 0 15px var(--incorrect-glow);
+            animation: shake-incorrect 0.5s;
+        }
+        @keyframes pulse-correct {
+            0% { transform: scale(1.05); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1.05); }
+        }
+        @keyframes shake-incorrect {
+            0%, 100% { transform: translateX(0) scale(1.05); }
+            25% { transform: translateX(-5px) scale(1.05); }
+            75% { transform: translateX(5px) scale(1.05); }
+        }
+        #sort-game-feedback {
+            font-size: 1.2rem;
+            font-weight: 500;
+            height: 2rem;
+        }
+        #sort-game-score {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+
+        /* Utility classes */
+        .hidden {
+            display: none;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-2 { margin-top: 2rem; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #page-title { font-size: 1.2rem; }
+            .main-content { padding: 2rem 3%; }
+            .home-header h1 { font-size: 2rem; }
+            #puzzle-container {
+                width: 315px;
+                grid-template-columns: repeat(5, 60px);
+                grid-template-rows: repeat(5, 60px);
+            }
+            .puzzle-piece {
+                width: 60px;
+                height: 60px;
+                background-size: 300px 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass-effect" id="sidebar">
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home"></i> Beranda</a></li>
+                <li>
+                    <div class="submenu-toggle"><i class="fas fa-book-open"></i>Materi<i class="fas fa-chevron-down"></i></div>
+                    <ul class="submenu">
+                        <li><a href="#" class="nav-link" data-page="materi1">1. Jenis & Fungsi Komputer</a></li>
+                        <li><a href="#" class="nav-link" data-page="materi2">2. Komponen Sistem Komputer</a></li>
+                        <li><a href="#" class="nav-link" data-page="materi3">3. Cara Kerja Komputer</a></li>
+                        <li><a href="#" class="nav-link" data-page="materi4">4. Bilangan Biner & Konversi</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" class="nav-link" data-page="kuis"><i class="fas fa-question-circle"></i> Kuis</a></li>
+                <li><a href="#" class="nav-link" data-page="leaderboard"><i class="fas fa-trophy"></i> Papan Peringkat</a></li>
+                <li>
+                    <div class="submenu-toggle"><i class="fas fa-gamepad"></i>Games<i class="fas fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                        <li><a href="#" class="nav-link" data-page="game1">1. Susun Puzzle</a></li>
+                        <li><a href="#" class="nav-link" data-page="game2">2. Sortir Komponen</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://xiroro-ab.github.io/smp58dataguru/" target="_blank" class="nav-link"><i class="fas fa-chalkboard-teacher"></i> Perangkat Ajar</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            &copy; 2025 Aris Bermansyah, S.Kom
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <h1 id="page-title">Beranda</h1>
+        <i class="fas fa-bars menu-toggle" id="menu-toggle"></i>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="home-header">
+                <img src="https://raw.githubusercontent.com/xiroro-ab/aris-bermansyah-komponen-sistem-komputer/refs/heads/main/IMG_7135.jpg" alt="Foto Profil" class="profile-pic">
+                <h1>Selamat Datang!</h1>
+                <p>Website Pembelajaran Interaktif Informatika Kelas 7 - Materi Sistem Komputer.</p>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-card glass-effect glow-effect" data-page="materi1">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Mulai Belajar</h3>
+                    <p>Jelajahi materi-materi menarik tentang sistem komputer.</p>
+                </div>
+                <div class="menu-card glass-effect glow-effect" data-page="kuis">
+                    <i class="fas fa-question-circle"></i>
+                    <h3>Uji Kemampuan</h3>
+                    <p>Kerjakan kuis untuk mengukur pemahamanmu.</p>
+                </div>
+                <div class="menu-card glass-effect glow-effect" data-page="leaderboard">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Lihat Peringkat</h3>
+                    <p>Bersaing dengan teman-temanmu dan jadilah yang terbaik.</p>
+                </div>
+                <div class="menu-card glass-effect glow-effect" data-page="game1">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>Bermain Games</h3>
+                    <p>Asah otak dengan permainan edukatif yang seru.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Materi Pages -->
+        <section id="materi1" class="page">
+             <div class="materi-container glass-effect">
+                <h2 class="materi-title">1. Mengenal Jenis & Fungsi Komputer</h2>
+                <div id="materi1-slider">
+                    <div class="materi-slide" data-slide="1">
+                        <h3>Fungsi dan Manfaat Komputer</h3>
+                        <p>Komputer adalah perangkat elektronik yang dapat menerima, menyimpan, mengolah, dan menyajikan data. Dalam kehidupan sehari-hari, komputer memiliki banyak sekali manfaat. Mulai dari membantu pekerjaan kita di kantor, menjadi sarana hiburan seperti menonton film atau bermain game, hingga menjadi alat komunikasi untuk terhubung dengan orang lain di seluruh dunia melalui internet. Video berikut akan menjelaskan lebih detail mengenai jenis-jenis komputer yang ada di sekitar kita.</p>
+                    </div>
+                     <div class="materi-slide hidden" data-slide="2">
+                        <h3>Video: Jenis-Jenis Komputer</h3>
+                         <div class="video-wrapper">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/kh-24TUq6_s?si=r6iLdNOxtcaZlIFR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                     <div class="materi-slide hidden" data-slide="3">
+                        <h3>Video: Manfaat Komputer</h3>
+                        <div class="video-wrapper">
+                           <iframe width="560" height="315" src="https://www.youtube.com/embed/3twgEo7CW80?si=7RI7W2jyc6wga3Pg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+                <div class="materi-navigation">
+                    <button class="btn glow-effect" id="prev-materi1" disabled>Sebelumnya</button>
+                    <button class="btn glow-effect" id="next-materi1">Selanjutnya</button>
+                </div>
+            </div>
+        </section>
+        
+        <section id="materi2" class="page">
+             <div class="materi-container glass-effect">
+                <h2 class="materi-title">2. Komponen Penyusun Sistem Komputer</h2>
+                <p>Sebuah sistem komputer terdiri dari tiga komponen utama yang saling bekerja sama: Hardware (Perangkat Keras), Software (Perangkat Lunak), dan Brainware (Pengguna). Video ini akan mengupas tuntas setiap komponen tersebut.</p>
+                <div class="video-wrapper">
+                   <iframe width="560" height="315" src="https://www.youtube.com/embed/YvoBKDMmLFU?si=PrZe1Chb7rLj-0wI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+        
+        <section id="materi3" class="page">
+             <div class="materi-container glass-effect">
+                <h2 class="materi-title">3. Memahami Cara Kerja Komputer</h2>
+                <p>Pernahkah kamu bertanya-tanya bagaimana komputer bisa mengerti perintah kita? Dari mulai kita menekan tombol keyboard hingga muncul tulisan di layar, semua melalui proses yang luar biasa di dalam mesin. Video ini akan menjelaskan langkah demi langkah cara kerja komputer.</p>
+                 <div class="video-wrapper">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/OUnDeczITHc?si=51_txldAHLo5r5T_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+        
+        <section id="materi4" class="page">
+             <div class="materi-container glass-effect">
+                <h2 class="materi-title">4. Pengenalan Bilangan Biner & Konversi</h2>
+                 <p>Komputer hanya memahami bahasa khusus yang disebut bilangan biner, yang terdiri dari angka 0 dan 1. Setelah memahami cara kerja komputer, sekarang saatnya kita belajar dasar-dasar bilangan biner dan bagaimana mengubahnya menjadi bilangan desimal yang biasa kita gunakan, begitu juga sebaliknya. Kemampuan ini adalah dasar dari komputasi digital!</p>
+                <div class="video-wrapper">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/7H-PrrfDw8w?si=VWVUJS2JBT5oHz0A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kuis Page -->
+        <section id="kuis" class="page">
+            <div class="kuis-container glass-effect">
+                <!-- Registrasi -->
+                <div id="registrasi-kuis">
+                    <h2 class="text-center">Uji Pemahamanmu!</h2>
+                    <p class="text-center" style="color: var(--text-dark); margin-bottom: 2rem;">Isi data dirimu untuk memulai kuis.</p>
+                    <form id="form-registrasi">
+                        <div class="form-group">
+                            <label for="nama">Nama Lengkap</label>
+                            <input type="text" id="nama" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kelas">Kelas</label>
+                            <select id="kelas" required>
+                                <option value="7.1">7.1</option>
+                                <option value="7.2">7.2</option>
+                                <option value="7.3">7.3</option>
+                                <option value="7.4">7.4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="token">Token</label>
+                            <input type="password" id="token" required>
+                        </div>
+                        <button type="submit" class="btn glow-effect" style="width: 100%;">Mulai Kuis</button>
+                    </form>
+                </div>
+
+                <!-- Kuis Utama -->
+                <div id="kuis-main" class="hidden">
+                    <div id="kuis-header">
+                        <div id="question-counter">Soal 1/10</div>
+                        <div id="timer">02:00</div>
+                    </div>
+                    <div id="progress-bar"><div id="progress-bar-fill"></div></div>
+                    <div id="soal-container">
+                        <img src="" alt="Gambar Soal" class="question-image hidden">
+                        <h3 id="soal-teks"></h3>
+                        <div id="pilihan-jawaban"></div>
+                    </div>
+                    <div id="kuis-nav">
+                        <button id="prev-soal" class="btn glow-effect">Sebelumnya</button>
+                        <button id="next-soal" class="btn glow-effect">Selanjutnya</button>
+                    </div>
+                </div>
+
+                <!-- Hasil Kuis -->
+                <div id="hasil-kuis" class="hidden">
+                    <h2>Kuis Selesai!</h2>
+                    <p>Skor Akhir Kamu:</p>
+                    <h1 id="skor-final" style="font-size: 4rem; margin: 1rem 0;">0</h1>
+                    <div id="pesan-hasil"></div>
+                    <div class="mt-2">
+                        <button id="kerjakan-ulang" class="btn glow-effect">Kerjakan Ulang</button>
+                        <button id="lihat-peringkat" class="btn glow-effect" data-page="leaderboard">Lihat Papan Peringkat</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Papan Peringkat Page -->
+        <section id="leaderboard" class="page">
+             <div class="leaderboard-container glass-effect">
+                <h2 class="text-center" style="font-size: 2.5rem; margin-bottom: 3rem;">Papan Peringkat</h2>
+                 <div id="leaderboard-content">
+                    <div class="podium">
+                        <!-- Podium items will be generated by JS -->
+                    </div>
+                    <div class="leaderboard-table-container">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Peringkat</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Skor</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Table rows will be generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+                 <div id="loading-leaderboard" class="text-center hidden">
+                     <i class="fas fa-spinner fa-spin fa-3x"></i>
+                     <p>Memuat data peringkat...</p>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Games Pages -->
+        <section id="game1" class="page">
+             <div class="game-container glass-effect">
+                <h2 class="game-title">Game: Susun Puzzle Komputer</h2>
+                <p class="text-center">Susun kembali potongan gambar komponen komputer ini menjadi utuh!<br><b>Cara Bermain:</b> Klik dua potongan gambar untuk menukar posisinya.</p>
+                <div id="puzzle-container"></div>
+                <div class="text-center mt-2">
+                    <button id="reset-puzzle" class="btn glow-effect">Acak Ulang</button>
+                </div>
+                <p id="puzzle-message" class="text-center" style="margin-top: 1rem; font-weight: 600;"></p>
+             </div>
+        </section>
+        
+        <section id="game2" class="page">
+             <div class="game-container glass-effect">
+                <h2 class="game-title">Game: Sortir Komponen</h2>
+                <p class="text-center">Seret gambar komponen ke kotak kategori yang benar!</p>
+                
+                <div id="sort-game-container">
+                    <div id="sort-game-score">Skor: 0</div>
+                    <div id="component-to-sort-area">
+                        <img src="" alt="Komponen Komputer" id="component-image" draggable="true">
+                        <h3 id="component-name"></h3>
+                    </div>
+                    <div id="drop-zones">
+                        <div class="drop-zone" data-zone="input"><h4><i class="fas fa-keyboard"></i><br>Perangkat Input</h4></div>
+                        <div class="drop-zone" data-zone="process"><h4><i class="fas fa-microchip"></i><br>Perangkat Proses</h4></div>
+                        <div class="drop-zone" data-zone="output"><h4><i class="fas fa-desktop"></i><br>Perangkat Output</h4></div>
+                    </div>
+                    <div id="sort-game-feedback"></div>
+                    <div id="sort-game-end-screen" class="hidden text-center">
+                         <h3>Permainan Selesai!</h3>
+                        <p id="final-score-sort" style="font-size: 1.5rem; margin: 1rem 0;"></p>
+                        <button id="restart-sort-game" class="btn glow-effect">Main Lagi</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- GLOBAL VARIABLES & CONSTANTS ---
+        const pageTitle = document.getElementById('page-title');
+        const allPages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const menuCards = document.querySelectorAll('.menu-card');
+        const QUIZ_TOKEN = "1234";
+        const SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbxg187xRtGKGWGR-vEo4AAodZfrRC1BaDliKjVrFEijuU17TPHr-Ia0Fv6MqtDFQqaaqQ/exec";
+
+        // --- NAVIGATION & UI ---
+
+        // Sticky Header
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Sidebar Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        
+        // Submenu Toggle
+        const submenuToggles = document.querySelectorAll('.submenu-toggle');
+        submenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const submenu = toggle.nextElementSibling;
+                submenu.classList.toggle('submenu-open');
+                toggle.querySelector('.fa-chevron-down').classList.toggle('fa-rotate-180');
+            });
+        });
+
+        // Page Navigation
+        function showPage(pageId) {
+            allPages.forEach(page => page.classList.remove('active'));
+            const newPage = document.getElementById(pageId);
+            if(newPage) {
+                newPage.classList.add('active');
+                
+                const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+                // Find title from link or submenu toggle span
+                let titleText = "Beranda";
+                if(activeLink) {
+                    titleText = activeLink.textContent.trim();
+                } else {
+                     // Check within submenus for a matching data-page
+                    const subLink = document.querySelector(`.submenu a[data-page="${pageId}"]`);
+                    if (subLink) {
+                        titleText = subLink.textContent.trim();
+                    }
+                }
+                pageTitle.textContent = titleText;
+                
+                navLinks.forEach(link => link.classList.remove('active'));
+                if (activeLink) activeLink.classList.add('active');
+
+                window.scrollTo(0, 0);
+                
+                // Fetch leaderboard data when the page is shown
+                if(pageId === 'leaderboard') {
+                    fetchLeaderboard();
+                }
+                // Start sort game when page is shown
+                if(pageId === 'game2') {
+                    startSortGame();
+                }
+            }
+        }
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.currentTarget.dataset.page;
+                showPage(pageId);
+                if (window.innerWidth <= 768) {
+                   toggleSidebar();
+                }
+            });
+        });
+
+        menuCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const pageId = e.currentTarget.dataset.page;
+                showPage(pageId);
+            });
+        });
+        
+        // Materi 1 Slider
+        const materi1Slides = document.querySelectorAll('#materi1-slider .materi-slide');
+        const prevBtn = document.getElementById('prev-materi1');
+        const nextBtn = document.getElementById('next-materi1');
+        let currentSlide = 0;
+
+        function updateMateri1Slider() {
+            materi1Slides.forEach((slide, index) => {
+                slide.classList.toggle('hidden', index !== currentSlide);
+            });
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === materi1Slides.length - 1;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < materi1Slides.length - 1) {
+                currentSlide++;
+                updateMateri1Slider();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateMateri1Slider();
+            }
+        });
+        updateMateri1Slider();
+
+
+        // --- KUIS LOGIC ---
+        const quizData = [
+            {
+                soal: "Komponen fisik komputer yang bisa dilihat dan disentuh disebut...",
+                pilihan: ["Software", "Hardware", "Brainware", "Malware"],
+                jawaban: "Hardware",
+                gambar: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Berikut ini yang termasuk perangkat input (masukan) adalah...",
+                pilihan: ["Monitor", "Printer", "Keyboard", "Speaker"],
+                jawaban: "Keyboard",
+                gambar: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Otak dari komputer yang berfungsi untuk memproses semua data adalah...",
+                pilihan: ["RAM", "Hard Disk", "VGA Card", "CPU (Processor)"],
+                jawaban: "CPU (Processor)",
+                gambar: "https://images.unsplash.com/photo-1591799264318-7e6e74e3c84e?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Perangkat lunak sistem yang paling utama untuk menjalankan komputer adalah...",
+                pilihan: ["Microsoft Office", "Sistem Operasi", "Browser", "Antivirus"],
+                jawaban: "Sistem Operasi",
+                gambar: "https://images.unsplash.com/photo-1618497882942-5591325945c2?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Pengguna atau orang yang mengoperasikan komputer disebut...",
+                pilihan: ["Hardware", "Software", "Brainware", "Operator"],
+                jawaban: "Brainware",
+                gambar: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Sistem bilangan yang hanya menggunakan angka 0 dan 1 adalah...",
+                pilihan: ["Desimal", "Heksadesimal", "Oktal", "Biner"],
+                jawaban: "Biner",
+                gambar: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Bilangan biner dari 5 (desimal) adalah...",
+                pilihan: ["101", "110", "011", "100"],
+                jawaban: "101",
+                gambar: "https://images.unsplash.com/photo-1509228627-129-628442ac0a86?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Perangkat output yang berfungsi untuk mencetak dokumen ke kertas adalah...",
+                pilihan: ["Scanner", "Monitor", "Printer", "Proyektor"],
+                jawaban: "Printer",
+                gambar: "https://images.unsplash.com/photo-1612815154858-60aa4c59915a?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "RAM adalah singkatan dari...",
+                pilihan: ["Read Access Memory", "Random Access Memory", "Run Application Memory", "Random Application Module"],
+                jawaban: "Random Access Memory",
+                gambar: "https://images.unsplash.com/photo-1592358022204-16a7f92f2549?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                soal: "Berikut ini yang BUKAN merupakan fungsi utama komputer adalah...",
+                pilihan: ["Input", "Processing", "Output", "Generating"],
+                jawaban: "Generating",
+                gambar: "https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        const formRegistrasi = document.getElementById('form-registrasi');
+        const registrasiKuis = document.getElementById('registrasi-kuis');
+        const kuisMain = document.getElementById('kuis-main');
+        const hasilKuis = document.getElementById('hasil-kuis');
+        const soalTeks = document.getElementById('soal-teks');
+        const questionImage = document.querySelector('.question-image');
+        const pilihanJawaban = document.getElementById('pilihan-jawaban');
+        const nextSoalBtn = document.getElementById('next-soal');
+        const prevSoalBtn = document.getElementById('prev-soal');
+        const timerEl = document.getElementById('timer');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const questionCounterEl = document.getElementById('question-counter');
+
+        let currentSoal = 0;
+        let skor = 0;
+        let jawabanUser = new Array(quizData.length).fill(null);
+        let timerInterval;
+
+        formRegistrasi.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const token = document.getElementById('token').value;
+            if (token === QUIZ_TOKEN) {
+                registrasiKuis.classList.add('hidden');
+                kuisMain.classList.remove('hidden');
+                startKuis();
+            } else {
+                alert('Token yang Anda masukkan salah!');
+            }
+        });
+
+        function startKuis() {
+            currentSoal = 0;
+            skor = 0;
+            jawabanUser.fill(null);
+            tampilkanSoal();
+            startTimer(120);
+        }
+
+        function tampilkanSoal() {
+            const data = quizData[currentSoal];
+            soalTeks.textContent = data.soal;
+            
+            if (data.gambar) {
+                questionImage.src = data.gambar;
+                questionImage.classList.remove('hidden');
+            } else {
+                questionImage.classList.add('hidden');
+            }
+
+            pilihanJawaban.innerHTML = '';
+            data.pilihan.forEach(pilihan => {
+                const div = document.createElement('div');
+                div.textContent = pilihan;
+                div.classList.add('pilihan');
+                if (jawabanUser[currentSoal] === pilihan) {
+                    div.classList.add('selected');
+                }
+                div.addEventListener('click', () => pilihJawaban(pilihan, div));
+                pilihanJawaban.appendChild(div);
+            });
+            updateNavButtons();
+            updateProgressBar();
+            questionCounterEl.textContent = `Soal ${currentSoal + 1}/${quizData.length}`;
+        }
+        
+        function pilihJawaban(pilihan, el) {
+            jawabanUser[currentSoal] = pilihan;
+            document.querySelectorAll('.pilihan').forEach(p => p.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function updateNavButtons() {
+            prevSoalBtn.disabled = currentSoal === 0;
+            if (currentSoal === quizData.length - 1) {
+                nextSoalBtn.textContent = 'Selesai';
+            } else {
+                nextSoalBtn.textContent = 'Selanjutnya';
+            }
+        }
+
+        function updateProgressBar() {
+            const answeredCount = jawabanUser.filter(j => j !== null).length;
+            const progress = (answeredCount / quizData.length) * 100;
+            progressBarFill.style.width = `${progress}%`;
+        }
+
+        nextSoalBtn.addEventListener('click', () => {
+            if (currentSoal < quizData.length - 1) {
+                currentSoal++;
+                tampilkanSoal();
+            } else {
+                selesaikanKuis();
+            }
+        });
+
+        prevSoalBtn.addEventListener('click', () => {
+            if (currentSoal > 0) {
+                currentSoal--;
+                tampilkanSoal();
+            }
+        });
+
+        function startTimer(duration) {
+            let timeLeft = duration;
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerEl.textContent = `${minutes}:${seconds}`;
+                timeLeft--;
+                if (timeLeft < 0) {
+                    selesaikanKuis();
+                }
+            }, 1000);
+        }
+
+        function selesaikanKuis() {
+            clearInterval(timerInterval);
+            hitungSkor();
+            kuisMain.classList.add('hidden');
+            hasilKuis.classList.remove('hidden');
+            
+            const skorFinalEl = document.getElementById('skor-final');
+            const pesanHasilEl = document.getElementById('pesan-hasil');
+            
+            skorFinalEl.textContent = skor;
+            if (skor >= 80) {
+                pesanHasilEl.textContent = "Luar biasa! Pemahamanmu sangat baik.";
+            } else if (skor >= 60) {
+                pesanHasilEl.textContent = "Bagus! Terus tingkatkan belajarmu.";
+            } else {
+                pesanHasilEl.textContent = "Jangan menyerah, coba pelajari lagi materinya ya!";
+            }
+            
+            saveScore();
+        }
+
+        function hitungSkor() {
+            skor = 0;
+            jawabanUser.forEach((jawaban, index) => {
+                if (jawaban === quizData[index].jawaban) {
+                    skor += 10;
+                }
+            });
+        }
+        
+        async function saveScore() {
+            const nama = document.getElementById('nama').value;
+            const kelas = document.getElementById('kelas').value;
+            const submitButton = document.querySelector('#hasil-kuis button');
+            
+            const formData = new FormData();
+            formData.append('nama', nama);
+            formData.append('kelas', kelas);
+            formData.append('skor', skor);
+            
+            try {
+                // Optionally show a loading state
+                submitButton.textContent = 'Menyimpan...';
+                const response = await fetch(SPREADSHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Important for handling opaque responses from Apps Script
+                    body: new URLSearchParams(formData) // Sending as x-www-form-urlencoded
+                });
+                 // Since mode is 'no-cors', we can't read the response. We assume it's successful.
+                console.log('Save status: Success (assumed due to no-cors mode)');
+            } catch (error) {
+                console.error('Error saving score:', error);
+                alert('Terjadi kesalahan saat menyimpan skor.');
+            } finally {
+                 submitButton.textContent = 'Skor Tersimpan';
+            }
+        }
+
+        document.getElementById('kerjakan-ulang').addEventListener('click', () => {
+            hasilKuis.classList.add('hidden');
+            registrasiKuis.classList.remove('hidden');
+            document.getElementById('form-registrasi').reset();
+        });
+
+        document.getElementById('lihat-peringkat').addEventListener('click', () => {
+            showPage('leaderboard');
+        });
+
+        // --- LEADERBOARD LOGIC ---
+        const leaderboardContent = document.getElementById('leaderboard-content');
+        const loadingLeaderboard = document.getElementById('loading-leaderboard');
+        
+        async function fetchLeaderboard() {
+            loadingLeaderboard.classList.remove('hidden');
+            leaderboardContent.classList.add('hidden');
+            try {
+                const response = await fetch(SPREADSHEET_URL);
+                if(!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                // Urutkan data berdasarkan skor tertinggi, lalu timestamp terlama
+                const sortedData = data.sort((a, b) => {
+                    if (b.Skor !== a.Skor) {
+                        return b.Skor - a.Skor;
+                    }
+                    return new Date(a.Timestamp) - new Date(b.Timestamp);
+                });
+                
+                displayLeaderboard(sortedData);
+
+            } catch (error) {
+                console.error("Failed to fetch leaderboard:", error);
+                leaderboardContent.innerHTML = `<p class="text-center">Gagal memuat data peringkat. Silakan coba lagi nanti.</p>`;
+            } finally {
+                loadingLeaderboard.classList.add('hidden');
+                leaderboardContent.classList.remove('hidden');
+            }
+        }
+
+        function displayLeaderboard(data) {
+            const podiumContainer = leaderboardContent.querySelector('.podium');
+            const tableBody = leaderboardContent.querySelector('tbody');
+            
+            podiumContainer.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            // Display Podium (Top 3)
+            const top3 = data.slice(0, 3);
+            if (top3.length > 1) { // 2nd place
+                podiumContainer.appendChild(createPodiumItem(top3[1], 2));
+            }
+            if (top3.length > 0) { // 1st place
+                podiumContainer.appendChild(createPodiumItem(top3[0], 1));
+            }
+            if (top3.length > 2) { // 3rd place
+                podiumContainer.appendChild(createPodiumItem(top3[2], 3));
+            }
+
+            // Display Table
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.Nama}</td>
+                    <td>${row.Kelas}</td>
+                    <td>${row.Skor}</td>
+                    <td>${new Date(row.Timestamp).toLocaleString('id-ID')}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function createPodiumItem(data, rank) {
+            const item = document.createElement('div');
+            item.className = `podium-item rank-${rank}`;
+            item.innerHTML = `
+                <p class="rank">${rank}</p>
+                <p class="name">${data.Nama}</p>
+                <p class="score">${data.Skor}</p>
+                <div class="bar"></div>
+            `;
+            return item;
+        }
+
+        // --- GAMES LOGIC ---
+        // Puzzle Game
+        const puzzleContainer = document.getElementById('puzzle-container');
+        const resetPuzzleBtn = document.getElementById('reset-puzzle');
+        const puzzleMessage = document.getElementById('puzzle-message');
+        let selectedPiece = null;
+
+        function createPuzzle() {
+            puzzleContainer.innerHTML = '';
+            puzzleMessage.textContent = '';
+            selectedPiece = null;
+            let pieces = [];
+            for (let i = 0; i < 25; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                const row = Math.floor(i / 5);
+                const col = i % 5;
+                piece.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+                piece.dataset.originalIndex = i;
+                pieces.push(piece);
+            }
+
+            // Shuffle pieces
+            pieces.sort(() => Math.random() - 0.5);
+
+            pieces.forEach(piece => {
+                puzzleContainer.appendChild(piece);
+                piece.addEventListener('click', onPieceClick);
+            });
+        }
+
+        function onPieceClick(e) {
+            const clickedPiece = e.target;
+
+            if (selectedPiece === null) {
+                // First piece selected
+                selectedPiece = clickedPiece;
+                selectedPiece.style.border = '2px solid var(--accent-blue)';
+            } else {
+                // Second piece selected, swap them
+                if (selectedPiece !== clickedPiece) {
+                    const nextSibling = clickedPiece.nextSibling;
+                    const selectedParent = selectedPiece.parentNode;
+                    const clickedParent = clickedPiece.parentNode;
+
+                    // Swap nodes in the DOM
+                    if (nextSibling === selectedPiece) {
+                        clickedParent.insertBefore(selectedPiece, clickedPiece);
+                    } else {
+                        selectedParent.insertBefore(clickedPiece, selectedPiece);
+                        if (nextSibling) {
+                            clickedParent.insertBefore(selectedPiece, nextSibling);
+                        } else {
+                            clickedParent.appendChild(selectedPiece);
+                        }
+                    }
+                }
+
+                selectedPiece.style.border = '1px solid #fff'; // Reset border
+                selectedPiece = null;
+                checkPuzzleWin();
+            }
+        }
+
+        function checkPuzzleWin() {
+            const currentPieces = Array.from(puzzleContainer.children);
+            const isWin = currentPieces.every((piece, index) => {
+                return parseInt(piece.dataset.originalIndex) === index;
+            });
+
+            if (isWin) {
+                puzzleMessage.textContent = 'Selamat! Kamu berhasil menyusun puzzle!';
+                puzzleMessage.style.color = 'lightgreen';
+                currentPieces.forEach(p => p.style.border = '2px solid lightgreen');
+            }
+        }
+
+        createPuzzle();
+        resetPuzzleBtn.addEventListener('click', createPuzzle);
+
+        // --- NEW GAME: Sortir Komponen LOGIC ---
+        const components = [
+            { name: "Mouse", type: "input", image: "https://images.unsplash.com/photo-1615663249853-2d21a2258957?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Keyboard", type: "input", image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Scanner", type: "input", image: "https://media.istockphoto.com/id/158664328/photo/scanner.jpg?s=612x612&w=0&k=20&c=S-b2bB-k9_530_3-7226-c-a7a53-E6m_63J-S5E=" },
+            { name: "CPU", type: "process", image: "https://images.unsplash.com/photo-1591799264318-7e6e74e3c84e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "RAM", type: "process", image: "https://images.unsplash.com/photo-1592358022204-16a7f92f2549?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Motherboard", type: "process", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Monitor", type: "output", image: "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Printer", type: "output", image: "https://images.unsplash.com/photo-1612815154858-60aa4c59915a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+            { name: "Speaker", type: "output", image: "https://images.unsplash.com/photo-1595101909822-28a1133f4a0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" },
+        ];
+
+        const componentImage = document.getElementById('component-image');
+        const componentName = document.getElementById('component-name');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const sortGameFeedback = document.getElementById('sort-game-feedback');
+        const sortGameScoreEl = document.getElementById('sort-game-score');
+        const sortGameEndScreen = document.getElementById('sort-game-end-screen');
+        const finalScoreSortEl = document.getElementById('final-score-sort');
+        const restartSortGameBtn = document.getElementById('restart-sort-game');
+        const componentArea = document.getElementById('component-to-sort-area');
+
+        let currentComponentIndex;
+        let sortableComponents;
+        let sortGameScore;
+
+        function startSortGame() {
+            sortableComponents = [...components].sort(() => Math.random() - 0.5);
+            currentComponentIndex = 0;
+            sortGameScore = 0;
+
+            sortGameScoreEl.textContent = `Skor: ${sortGameScore}`;
+            sortGameEndScreen.classList.add('hidden');
+            componentArea.classList.remove('hidden');
+            dropZones.forEach(dz => dz.classList.remove('hidden'));
+            sortGameFeedback.textContent = '';
+            
+            showNextComponent();
+        }
+
+        function showNextComponent() {
+            if (currentComponentIndex < sortableComponents.length) {
+                const component = sortableComponents[currentComponentIndex];
+                componentImage.src = component.image;
+                componentImage.alt = component.name;
+                componentImage.dataset.type = component.type;
+                componentName.textContent = component.name;
+            } else {
+                endSortGame();
+            }
+        }
+        
+        function endSortGame() {
+            componentArea.classList.add('hidden');
+            dropZones.forEach(dz => dz.classList.add('hidden'));
+            finalScoreSortEl.textContent = `Skor Akhir Kamu: ${sortGameScore} / ${components.length * 10}`;
+            sortGameEndScreen.classList.remove('hidden');
+            sortGameFeedback.textContent = 'Permainan Selesai!';
+        }
+
+        // Drag and Drop Event Listeners
+        componentImage.addEventListener('dragstart', (e) => {
+            e.target.classList.add('dragging');
+        });
+
+        componentImage.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('over');
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('over');
+            });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('over');
+                const droppedType = zone.dataset.zone;
+                const correctType = componentImage.dataset.type;
+
+                if (droppedType === correctType) {
+                    handleCorrectDrop(zone);
+                } else {
+                    handleIncorrectDrop(zone);
+                }
+            });
+        });
+
+        function handleCorrectDrop(zone) {
+            sortGameScore += 10;
+            sortGameScoreEl.textContent = `Skor: ${sortGameScore}`;
+            sortGameFeedback.textContent = "Benar!";
+            sortGameFeedback.style.color = "lightgreen";
+            zone.classList.add('correct');
+            
+            setTimeout(() => {
+                zone.classList.remove('correct');
+                sortGameFeedback.textContent = "";
+                currentComponentIndex++;
+                showNextComponent();
+            }, 1000);
+        }
+
+        function handleIncorrectDrop(zone) {
+            sortGameFeedback.textContent = "Salah, coba lagi!";
+            sortGameFeedback.style.color = "lightcoral";
+            zone.classList.add('incorrect');
+
+            setTimeout(() => {
+                zone.classList.remove('incorrect');
+                sortGameFeedback.textContent = "";
+            }, 1000);
+        }
+
+        restartSortGameBtn.addEventListener('click', startSortGame);
+    });
+    </script>
+</body>
+</html>
+
+
+
+
